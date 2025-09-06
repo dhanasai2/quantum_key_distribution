@@ -1,0 +1,569 @@
+/* Animation definitions */
+
+/* Quantum-specific animations */
+@keyframes quantumSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.1); }
+  50% { transform: rotate(180deg) scale(1); }
+  75% { transform: rotate(270deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes quantumPulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+    filter: brightness(100%);
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scale(1.05);
+    filter: brightness(150%);
+  }
+}
+
+@keyframes quantumGlow {
+  0%, 100% { 
+    box-shadow: 0 0 5px currentColor; 
+  }
+  50% { 
+    box-shadow: 0 0 25px currentColor, 0 0 35px currentColor; 
+  }
+}
+
+@keyframes photonTravel {
+  0% { 
+    left: -20px; 
+    opacity: 0; 
+    transform: scale(0.5) rotate(0deg); 
+  }
+  10% { 
+    opacity: 1; 
+    transform: scale(1) rotate(36deg); 
+  }
+  50% { 
+    transform: scale(1.2) rotate(180deg); 
+  }
+  90% { 
+    opacity: 1; 
+    transform: scale(1) rotate(324deg); 
+  }
+  100% { 
+    left: calc(100% + 20px); 
+    opacity: 0; 
+    transform: scale(0.5) rotate(360deg); 
+  }
+}
+
+@keyframes blochRotation {
+  0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  33% { transform: rotateX(120deg) rotateY(120deg) rotateZ(120deg); }
+  66% { transform: rotateX(240deg) rotateY(240deg) rotateZ(240deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+}
+
+@keyframes polarizationOscillation {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(45deg); }
+  50% { transform: rotate(90deg); }
+  75% { transform: rotate(135deg); }
+}
+
+@keyframes channelNoise {
+  0%, 100% { filter: brightness(100%) contrast(100%); }
+  10% { filter: brightness(110%) contrast(95%); }
+  20% { filter: brightness(95%) contrast(105%); }
+  30% { filter: brightness(105%) contrast(90%); }
+  40% { filter: brightness(90%) contrast(110%); }
+  50% { filter: brightness(115%) contrast(85%); }
+  60% { filter: brightness(85%) contrast(115%); }
+  70% { filter: brightness(108%) contrast(92%); }
+  80% { filter: brightness(92%) contrast(108%); }
+  90% { filter: brightness(103%) contrast(97%); }
+}
+
+@keyframes errorDetection {
+  0%, 100% { 
+    background-color: rgba(255, 0, 107, 0.1); 
+    border-color: rgba(255, 0, 107, 0.3);
+  }
+  50% { 
+    background-color: rgba(255, 0, 107, 0.3); 
+    border-color: rgba(255, 0, 107, 0.6);
+  }
+}
+
+@keyframes securityScan {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes dataFlow {
+  0% { transform: translateX(-100%) scaleX(0); }
+  50% { transform: translateX(0%) scaleX(1); }
+  100% { transform: translateX(100%) scaleX(0); }
+}
+
+@keyframes keyGeneration {
+  0% { 
+    background-position: 0% 50%; 
+    opacity: 0.6;
+  }
+  50% { 
+    background-position: 100% 50%; 
+    opacity: 1;
+  }
+  100% { 
+    background-position: 0% 50%; 
+    opacity: 0.6;
+  }
+}
+
+@keyframes encryptionProcess {
+  0% { 
+    transform: rotate(0deg) scale(1); 
+    filter: hue-rotate(0deg);
+  }
+  33% { 
+    transform: rotate(120deg) scale(1.1); 
+    filter: hue-rotate(120deg);
+  }
+  66% { 
+    transform: rotate(240deg) scale(0.9); 
+    filter: hue-rotate(240deg);
+  }
+  100% { 
+    transform: rotate(360deg) scale(1); 
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes transmissionSuccess {
+  0%, 100% { 
+    transform: scale(1); 
+    filter: brightness(100%); 
+  }
+  50% { 
+    transform: scale(1.1); 
+    filter: brightness(150%); 
+  }
+}
+
+@keyframes eavesdropperAlert {
+  0%, 100% { 
+    transform: translateY(0px) scale(1); 
+    opacity: 1; 
+  }
+  25% { 
+    transform: translateY(-5px) scale(1.05); 
+    opacity: 0.8; 
+  }
+  50% { 
+    transform: translateY(0px) scale(1.1); 
+    opacity: 0.9; 
+  }
+  75% { 
+    transform: translateY(5px) scale(1.05); 
+    opacity: 0.8; 
+  }
+}
+
+@keyframes measurementCollapse {
+  0% { 
+    transform: scale(1) rotate(0deg); 
+    opacity: 1; 
+    filter: blur(0px); 
+  }
+  50% { 
+    transform: scale(1.2) rotate(180deg); 
+    opacity: 0.7; 
+    filter: blur(2px); 
+  }
+  100% { 
+    transform: scale(0.8) rotate(360deg); 
+    opacity: 1; 
+    filter: blur(0px); 
+  }
+}
+
+@keyframes interferencePattern {
+  0% { 
+    background-position: 0% 0%, 100% 100%; 
+    opacity: 0.6; 
+  }
+  25% { 
+    background-position: 50% 0%, 50% 100%; 
+    opacity: 0.8; 
+  }
+  50% { 
+    background-position: 100% 0%, 0% 100%; 
+    opacity: 1; 
+  }
+  75% { 
+    background-position: 50% 100%, 50% 0%; 
+    opacity: 0.8; 
+  }
+  100% { 
+    background-position: 0% 100%, 100% 0%; 
+    opacity: 0.6; 
+  }
+}
+
+@keyframes quantumEntanglement {
+  0%, 100% { 
+    transform: translateX(0px) rotate(0deg); 
+    opacity: 1; 
+  }
+  25% { 
+    transform: translateX(10px) rotate(90deg); 
+    opacity: 0.8; 
+  }
+  50% { 
+    transform: translateX(0px) rotate(180deg); 
+    opacity: 0.6; 
+  }
+  75% { 
+    transform: translateX(-10px) rotate(270deg); 
+    opacity: 0.8; 
+  }
+}
+
+/* Utility animation classes */
+.animate-spin {
+  animation: quantumSpin 2s linear infinite;
+}
+
+.animate-pulse {
+  animation: quantumPulse 2s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: quantumGlow 2s ease-in-out infinite;
+}
+
+.animate-photon {
+  animation: photonTravel 3s linear infinite;
+}
+
+.animate-bloch {
+  animation: blochRotation 4s linear infinite;
+}
+
+.animate-polarization {
+  animation: polarizationOscillation 2s ease-in-out infinite;
+}
+
+.animate-noise {
+  animation: channelNoise 0.5s linear infinite;
+}
+
+.animate-error {
+  animation: errorDetection 1s ease-in-out infinite;
+}
+
+.animate-scan {
+  animation: securityScan 2s linear infinite;
+}
+
+.animate-flow {
+  animation: dataFlow 2s ease-in-out infinite;
+}
+
+.animate-generate {
+  animation: keyGeneration 3s ease-in-out infinite;
+}
+
+.animate-encrypt {
+  animation: encryptionProcess 2s linear infinite;
+}
+
+.animate-success {
+  animation: transmissionSuccess 1s ease-in-out;
+}
+
+.animate-alert {
+  animation: eavesdropperAlert 1.5s ease-in-out infinite;
+}
+
+.animate-collapse {
+  animation: measurementCollapse 1s ease-in-out;
+}
+
+.animate-interference {
+  animation: interferencePattern 3s ease-in-out infinite;
+}
+
+.animate-entanglement {
+  animation: quantumEntanglement 2s ease-in-out infinite;
+}
+
+/* Hover animations */
+.hover-lift {
+  transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+
+.hover-rotate {
+  transition: transform 0.3s ease;
+}
+
+.hover-rotate:hover {
+  transform: rotate(5deg);
+}
+
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-brightness {
+  transition: filter 0.3s ease;
+}
+
+.hover-brightness:hover {
+  filter: brightness(1.2);
+}
+
+/* Loading animations */
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  90%, 100% { content: '...'; }
+}
+
+.loading-spinner {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top: 2px solid #00d4ff;
+  width: 20px;
+  height: 20px;
+  animation: loadingSpinner 1s linear infinite;
+}
+
+@keyframes loadingSpinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-wave {
+  display: inline-block;
+  animation: loadingWave 1.4s ease-in-out infinite both;
+}
+
+.loading-wave:nth-child(2) { animation-delay: 0.1s; }
+.loading-wave:nth-child(3) { animation-delay: 0.2s; }
+.loading-wave:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes loadingWave {
+  0%, 40%, 100% { 
+    transform: scaleY(0.4); 
+    opacity: 0.5; 
+  }
+  20% { 
+    transform: scaleY(1.0); 
+    opacity: 1; 
+  }
+}
+
+/* Entrance animations */
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-down {
+  animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-left {
+  animation: fadeInLeft 0.6s ease-out;
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-in-right {
+  animation: fadeInRight 0.6s ease-out;
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.scale-in {
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Exit animations */
+.fade-out {
+  animation: fadeOut 0.3s ease-in forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Performance optimizations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.will-change-filter {
+  will-change: filter;
+}
+
+/* Responsive animations */
+@media (max-width: 768px) {
+  .animate-bloch {
+    animation-duration: 6s;
+  }
+  
+  .animate-photon {
+    animation-duration: 4s;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin,
+  .animate-pulse,
+  .animate-glow,
+  .animate-photon,
+  .animate-bloch,
+  .animate-polarization,
+  .animate-noise,
+  .animate-error,
+  .animate-scan,
+  .animate-flow,
+  .animate-generate,
+  .animate-encrypt,
+  .animate-alert,
+  .animate-interference,
+  .animate-entanglement {
+    animation: none;
+  }
+  
+  .hover-lift,
+  .hover-glow,
+  .hover-rotate,
+  .hover-scale,
+  .hover-brightness {
+    transition: none;
+  }
+  
+  .fade-in-up,
+  .fade-in-down,
+  .fade-in-left,
+  .fade-in-right,
+  .scale-in,
+  .fade-out {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .animate-spin,
+  .animate-pulse,
+  .animate-glow,
+  .animate-photon,
+  .animate-bloch,
+  .animate-polarization,
+  .animate-noise,
+  .animate-error,
+  .animate-scan,
+  .animate-flow,
+  .animate-generate,
+  .animate-encrypt,
+  .animate-success,
+  .animate-alert,
+  .animate-collapse,
+  .animate-interference,
+  .animate-entanglement {
+    animation: none !important;
+  }
+}

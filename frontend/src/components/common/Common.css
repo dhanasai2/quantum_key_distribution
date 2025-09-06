@@ -1,0 +1,173 @@
+/* Common component styles */
+
+.quantum-button {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(45deg, #00d4ff, #ff006b) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3) !important;
+}
+
+.quantum-button:hover {
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+.quantum-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.quantum-button:hover::before {
+  left: 100%;
+}
+
+.quantum-panel {
+  background: rgba(255, 255, 255, 0.02) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px !important;
+  transition: all 0.3s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.quantum-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, transparent 50%, rgba(0, 212, 255, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.quantum-panel:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-color: rgba(0, 212, 255, 0.4);
+}
+
+.quantum-panel:hover::before {
+  opacity: 1;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.glow-text {
+  text-shadow: 0 0 10px currentColor;
+}
+
+.quantum-border {
+  border: 2px solid transparent;
+  background: linear-gradient(45deg, #00d4ff, #ff006b, #00ff88) border-box;
+  border-radius: 12px;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-indicator.online {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.status-indicator.offline {
+  background: rgba(255, 0, 107, 0.2);
+  color: #ff006b;
+  border: 1px solid rgba(255, 0, 107, 0.3);
+}
+
+.status-indicator.processing {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  animation: pulse 1.5s infinite;
+}
+
+.quantum-chip {
+  background: linear-gradient(45deg, rgba(0, 212, 255, 0.2), rgba(255, 0, 107, 0.2)) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(0, 212, 255, 0.3) !important;
+  font-weight: 600 !important;
+}
+
+.error-state {
+  background: rgba(255, 0, 107, 0.1) !important;
+  border-color: rgba(255, 0, 107, 0.3) !important;
+  animation: errorPulse 2s infinite;
+}
+
+@keyframes errorPulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255, 0, 107, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 0, 107, 0.6);
+  }
+}
+
+.success-state {
+  background: rgba(0, 255, 136, 0.1) !important;
+  border-color: rgba(0, 255, 136, 0.3) !important;
+  animation: successPulse 2s infinite;
+}
+
+@keyframes successPulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(0, 255, 136, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+  }
+}

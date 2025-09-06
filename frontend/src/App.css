@@ -1,0 +1,61 @@
+.App {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1d29 0%, #252837 100%);
+}
+
+.quantum-icon {
+  font-size: 1.2em;
+  background: linear-gradient(45deg, #00d4ff, #ff006b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.processing-container {
+  padding: 16px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(0, 212, 255, 0.05);
+}
+
+/* Glowing effects */
+.MuiButton-containedPrimary {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3) !important;
+}
+
+.MuiButton-containedPrimary:hover {
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.5) !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1d29;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00d4ff;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff006b;
+}
+
+/* Animations */
+@keyframes quantumPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.quantum-pulse {
+  animation: quantumPulse 2s infinite;
+}
+
+/* Chart styling */
+.chartjs-render-monitor {
+  background: transparent !important;
+}

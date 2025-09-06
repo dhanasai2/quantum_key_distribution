@@ -1,0 +1,274 @@
+/* Theme definitions */
+
+/* Dark theme (default) */
+.theme-dark {
+  --bg-primary: #1a1d29;
+  --bg-secondary: #252837;
+  --bg-tertiary: #2d3142;
+  --bg-quaternary: #373b4e;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #e2e8f0;
+  --text-tertiary: #8892b0;
+  --text-quaternary: #64748b;
+  
+  --accent-primary: #00d4ff;
+  --accent-secondary: #ff006b;
+  --accent-tertiary: #00ff88;
+  --accent-quaternary: #ffc107;
+  --accent-error: #f44336;
+  
+  --border-primary: rgba(255, 255, 255, 0.1);
+  --border-secondary: rgba(255, 255, 255, 0.2);
+  --border-accent: rgba(0, 212, 255, 0.3);
+  
+  --shadow-primary: rgba(0, 0, 0, 0.3);
+  --shadow-secondary: rgba(0, 0, 0, 0.5);
+  --shadow-glow: rgba(0, 212, 255, 0.3);
+  
+  --overlay-primary: rgba(0, 0, 0, 0.7);
+  --overlay-secondary: rgba(255, 255, 255, 0.05);
+}
+
+/* Light theme (optional) */
+.theme-light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-quaternary: #e2e8f0;
+  
+  --text-primary: #1a1d29;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+  --text-quaternary: #94a3b8;
+  
+  --accent-primary: #0ea5e9;
+  --accent-secondary: #e11d48;
+  --accent-tertiary: #10b981;
+  --accent-quaternary: #f59e0b;
+  --accent-error: #ef4444;
+  
+  --border-primary: rgba(0, 0, 0, 0.1);
+  --border-secondary: rgba(0, 0, 0, 0.2);
+  --border-accent: rgba(14, 165, 233, 0.3);
+  
+  --shadow-primary: rgba(0, 0, 0, 0.1);
+  --shadow-secondary: rgba(0, 0, 0, 0.2);
+  --shadow-glow: rgba(14, 165, 233, 0.3);
+  
+  --overlay-primary: rgba(255, 255, 255, 0.9);
+  --overlay-secondary: rgba(0, 0, 0, 0.05);
+}
+
+/* Quantum theme (enhanced dark) */
+.theme-quantum {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #1a1d29;
+  --bg-tertiary: #252837;
+  --bg-quaternary: #2d3142;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #e2e8f0;
+  --text-tertiary: #8892b0;
+  --text-quaternary: #64748b;
+  
+  --accent-primary: #00d4ff;
+  --accent-secondary: #ff006b;
+  --accent-tertiary: #00ff88;
+  --accent-quaternary: #ffc107;
+  --accent-error: #ff1744;
+  
+  --border-primary: rgba(0, 212, 255, 0.2);
+  --border-secondary: rgba(255, 0, 107, 0.2);
+  --border-accent: rgba(0, 255, 136, 0.2);
+  
+  --shadow-primary: rgba(0, 212, 255, 0.3);
+  --shadow-secondary: rgba(255, 0, 107, 0.3);
+  --shadow-glow: rgba(0, 255, 136, 0.3);
+  
+  --overlay-primary: rgba(0, 0, 0, 0.8);
+  --overlay-secondary: rgba(0, 212, 255, 0.05);
+}
+
+/* High contrast theme */
+.theme-high-contrast {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #333333;
+  --bg-quaternary: #4d4d4d;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --text-tertiary: #cccccc;
+  --text-quaternary: #999999;
+  
+  --accent-primary: #00ffff;
+  --accent-secondary: #ff00ff;
+  --accent-tertiary: #00ff00;
+  --accent-quaternary: #ffff00;
+  --accent-error: #ff0000;
+  
+  --border-primary: #ffffff;
+  --border-secondary: #cccccc;
+  --border-accent: #00ffff;
+  
+  --shadow-primary: rgba(255, 255, 255, 0.3);
+  --shadow-secondary: rgba(255, 255, 255, 0.5);
+  --shadow-glow: rgba(0, 255, 255, 0.5);
+  
+  --overlay-primary: rgba(0, 0, 0, 0.9);
+  --overlay-secondary: rgba(255, 255, 255, 0.1);
+}
+
+/* Theme-specific component styles */
+.theme-dark .quantum-button {
+  background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 0 20px var(--shadow-glow);
+}
+
+.theme-dark .quantum-panel {
+  background: var(--bg-secondary);
+  border-color: var(--border-primary);
+}
+
+.theme-light .quantum-button {
+  background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 4px 12px var(--shadow-primary);
+}
+
+.theme-light .quantum-panel {
+  background: var(--bg-secondary);
+  border-color: var(--border-primary);
+  box-shadow: 0 2px 8px var(--shadow-primary);
+}
+
+.theme-quantum .quantum-button {
+  background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 0 30px var(--shadow-glow);
+  border: 1px solid var(--border-accent);
+}
+
+.theme-quantum .quantum-panel {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 0 20px var(--shadow-primary);
+}
+
+.theme-high-contrast .quantum-button {
+  background: var(--accent-primary);
+  border: 2px solid var(--border-primary);
+  box-shadow: none;
+}
+
+.theme-high-contrast .quantum-panel {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-primary);
+  box-shadow: none;
+}
+
+/* Theme transition animations */
+.theme-transition {
+  transition: 
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* Theme-aware component overrides */
+body.theme-dark {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+body.theme-light {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+body.theme-quantum {
+  background: radial-gradient(ellipse at top, var(--bg-primary) 0%, #000000 100%);
+  color: var(--text-primary);
+}
+
+body.theme-high-contrast {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Theme-specific scrollbar */
+.theme-dark::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+}
+
+.theme-light::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+}
+
+.theme-quantum::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 0 5px var(--shadow-glow);
+}
+
+.theme-high-contrast::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+}
+
+/* Theme-specific selection */
+.theme-dark ::selection {
+  background: rgba(0, 212, 255, 0.3);
+}
+
+.theme-light ::selection {
+  background: rgba(14, 165, 233, 0.3);
+}
+
+.theme-quantum ::selection {
+  background: rgba(0, 212, 255, 0.4);
+}
+
+.theme-high-contrast ::selection {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+/* Responsive theme adjustments */
+@media (max-width: 768px) {
+  .theme-quantum {
+    --shadow-glow: rgba(0, 212, 255, 0.2);
+  }
+  
+  .theme-quantum .quantum-panel {
+    box-shadow: 0 0 10px var(--shadow-primary);
+  }
+}
+
+/* System preference detection */
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+/* Accessibility enhancements */
+@media (prefers-contrast: high) {
+  .theme-dark,
+  .theme-light,
+  .theme-quantum {
+    --border-primary: #ffffff;
+    --border-secondary: #ffffff;
+    --text-tertiary: #ffffff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-transition {
+    transition: none;
+  }
+}

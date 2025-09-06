@@ -1,0 +1,365 @@
+.quantum-visualization {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(255, 0, 107, 0.05) 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.photon-particle {
+  position: relative;
+  display: inline-block;
+  animation: photonGlow 2s infinite alternate;
+}
+
+@keyframes photonGlow {
+  0% { 
+    filter: brightness(100%) drop-shadow(0 0 5px currentColor); 
+    transform: scale(1);
+  }
+  100% { 
+    filter: brightness(150%) drop-shadow(0 0 15px currentColor); 
+    transform: scale(1.1);
+  }
+}
+
+.polarization-vector {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.polarization-vector::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, transparent, currentColor, transparent);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.polarization-vector:hover::before {
+  opacity: 0.3;
+}
+
+.quantum-channel-container {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, 
+    rgba(0, 212, 255, 0.1) 0%, 
+    rgba(255, 0, 107, 0.1) 50%, 
+    rgba(0, 212, 255, 0.1) 100%
+  );
+}
+
+.quantum-channel-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent
+  );
+  animation: channelScan 3s infinite;
+}
+
+@keyframes channelScan {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.alice-node, .bob-node {
+  position: relative;
+  overflow: hidden;
+}
+
+.alice-node::before, .bob-node::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: nodeActive 2s infinite;
+}
+
+.alice-node::before {
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.4) 0%, transparent 70%);
+}
+
+.bob-node::before {
+  background: radial-gradient(circle, rgba(255, 0, 107, 0.4) 0%, transparent 70%);
+}
+
+@keyframes nodeActive {
+  0%, 100% { 
+    width: 100%; 
+    height: 100%; 
+    opacity: 0.8; 
+  }
+  50% { 
+    width: 120%; 
+    height: 120%; 
+    opacity: 0.2; 
+  }
+}
+
+.photon-stream {
+  position: relative;
+  height: 4px;
+  background: linear-gradient(90deg, #00d4ff, #ff006b);
+  overflow: hidden;
+}
+
+.photon-particle-moving {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffff00;
+  top: -4px;
+  animation: photonTravel 3s linear infinite;
+  box-shadow: 0 0 15px #ffff00, 0 0 30px #ffff00;
+}
+
+@keyframes photonTravel {
+  0% { 
+    left: -20px; 
+    opacity: 0; 
+    transform: scale(0.5); 
+  }
+  10% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  90% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  100% { 
+    left: calc(100% + 20px); 
+    opacity: 0; 
+    transform: scale(0.5); 
+  }
+}
+
+.eavesdropper-indicator {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: eavesdropperAlert 1.5s infinite;
+}
+
+@keyframes eavesdropperAlert {
+  0%, 100% { 
+    transform: translateX(-50%) scale(1); 
+    opacity: 1; 
+  }
+  50% { 
+    transform: translateX(-50%) scale(1.1); 
+    opacity: 0.7; 
+  }
+}
+
+.measurement-apparatus {
+  position: relative;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.measurement-apparatus.active {
+  border-color: #00d4ff;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+  animation: measurementActive 2s infinite;
+}
+
+@keyframes measurementActive {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.6); }
+}
+
+.basis-selector {
+  display: inline-flex;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.basis-selector:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.basis-selector.selected {
+  background: rgba(0, 212, 255, 0.2);
+  border-color: #00d4ff;
+  color: #00d4ff;
+}
+
+.quantum-state-evolution {
+  position: relative;
+  height: 100px;
+  background: radial-gradient(ellipse at center, 
+    rgba(0, 212, 255, 0.1) 0%, 
+    rgba(255, 0, 107, 0.05) 50%, 
+    transparent 100%
+  );
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.state-trajectory {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    #00d4ff, 
+    #ff006b, 
+    #00ff88, 
+    transparent
+  );
+  top: 50%;
+  transform: translateY(-50%);
+  animation: trajectoryFlow 4s infinite;
+}
+
+@keyframes trajectoryFlow {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.noise-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 152, 0, 0.1) 2px,
+    rgba(255, 152, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  animation: noisePattern 2s infinite;
+}
+
+@keyframes noisePattern {
+  0% { background-position: 0 0; }
+  100% { background-position: 20px 20px; }
+}
+
+.quantum-interference {
+  position: relative;
+  background: radial-gradient(circle at 30% 30%, 
+    rgba(0, 212, 255, 0.2) 0%, 
+    rgba(255, 0, 107, 0.1) 30%, 
+    rgba(0, 255, 136, 0.1) 60%, 
+    transparent 100%
+  );
+  animation: interferencePattern 3s infinite;
+}
+
+@keyframes interferencePattern {
+  0%, 100% { 
+    background-position: 0% 0%; 
+    opacity: 0.8; 
+  }
+  25% { 
+    background-position: 25% 25%; 
+    opacity: 0.6; 
+  }
+  50% { 
+    background-position: 50% 50%; 
+    opacity: 1; 
+  }
+  75% { 
+    background-position: 75% 75%; 
+    opacity: 0.6; 
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .quantum-channel-container {
+    height: 80px;
+  }
+  
+  .alice-node, .bob-node {
+    width: 50px;
+    height: 50px;
+    font-size: 10px;
+  }
+  
+  .photon-particle-moving {
+    width: 8px;
+    height: 8px;
+    top: -2px;
+  }
+  
+  .measurement-apparatus {
+    padding: 8px;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .photon-particle {
+    filter: contrast(150%) brightness(120%);
+  }
+  
+  .quantum-channel-container {
+    border: 2px solid #ffffff;
+  }
+  
+  .polarization-vector {
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .photon-particle,
+  .quantum-channel-container::before,
+  .photon-particle-moving,
+  .state-trajectory {
+    animation: none;
+  }
+  
+  .polarization-vector {
+    transition: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .quantum-visualization {
+    background: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+  }
+  
+  .photon-particle,
+  .quantum-channel-container::before,
+  .noise-overlay {
+    animation: none !important;
+  }
+}

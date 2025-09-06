@@ -1,0 +1,288 @@
+.bloch-sphere-3d {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  background: radial-gradient(circle at 30% 30%, rgba(0, 212, 255, 0.1) 0%, rgba(255, 0, 107, 0.05) 50%, transparent 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  overflow: hidden;
+}
+
+.bloch-sphere-3d::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(45deg, transparent 48%, rgba(0, 212, 255, 0.1) 49%, rgba(0, 212, 255, 0.1) 51%, transparent 52%),
+    linear-gradient(-45deg, transparent 48%, rgba(255, 0, 107, 0.1) 49%, rgba(255, 0, 107, 0.1) 51%, transparent 52%);
+  pointer-events: none;
+  animation: quantumInterference 4s infinite;
+}
+
+@keyframes quantumInterference {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+.bloch-controls {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.control-slider {
+  margin: 16px 0;
+}
+
+.control-slider .MuiSlider-root {
+  height: 8px;
+}
+
+.control-slider .MuiSlider-track {
+  border: none;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.control-slider .MuiSlider-thumb {
+  height: 24px;
+  width: 24px;
+  background-color: currentColor;
+  border: 2px solid #fff;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  transition: all 0.2s ease;
+}
+
+.control-slider .MuiSlider-thumb:hover,
+.control-slider .MuiSlider-thumb.Mui-focusVisible {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+  transform: scale(1.1);
+}
+
+.quantum-state-display {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(255, 0, 107, 0.1));
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.quantum-state-display::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #00d4ff, #ff006b, #00ff88, #00d4ff);
+  border-radius: 12px;
+  z-index: -1;
+  animation: borderGlow 3s infinite linear;
+}
+
+@keyframes borderGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.state-vector-display {
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  color: #00d4ff;
+  text-align: center;
+  margin: 12px 0;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.bloch-coordinates {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.coordinate-item {
+  text-align: center;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.coordinate-label {
+  font-size: 12px;
+  color: #8892b0;
+  margin-bottom: 4px;
+}
+
+.coordinate-value {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.coordinate-x { color: #ff006b; }
+.coordinate-y { color: #00ff88; }
+.coordinate-z { color: #00d4ff; }
+
+.sphere-legend {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.probability-display {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.probability-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.probability-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.prob-0 { background: linear-gradient(90deg, #00d4ff, #0099cc); }
+.prob-1 { background: linear-gradient(90deg, #ff006b, #cc0055); }
+
+.measurement-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.basis-z {
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.basis-x {
+  background: rgba(255, 0, 107, 0.2);
+  color: #ff006b;
+  border: 1px solid rgba(255, 0, 107, 0.3);
+}
+
+.basis-y {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.quantum-animation {
+  animation: quantumSpin 4s infinite linear;
+}
+
+@keyframes quantumSpin {
+  0% { transform: rotateY(0deg) rotateX(0deg); }
+  25% { transform: rotateY(90deg) rotateX(10deg); }
+  50% { transform: rotateY(180deg) rotateX(0deg); }
+  75% { transform: rotateY(270deg) rotateX(-10deg); }
+  100% { transform: rotateY(360deg) rotateX(0deg); }
+}
+
+.state-evolution {
+  position: relative;
+  height: 200px;
+  margin: 16px 0;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.evolution-path {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #00d4ff, #ff006b, #00ff88, #00d4ff);
+  top: 50%;
+  transform: translateY(-50%);
+  animation: evolutionFlow 3s infinite;
+}
+
+@keyframes evolutionFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .bloch-sphere-3d {
+    height: 400px;
+  }
+  
+  .bloch-coordinates {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .sphere-legend {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Dark mode enhancements */
+.dark-mode .bloch-sphere-3d {
+  background: radial-gradient(circle at 30% 30%, rgba(0, 212, 255, 0.15) 0%, rgba(255, 0, 107, 0.08) 50%, rgba(26, 29, 41, 0.9) 100%);
+}
+
+.dark-mode .bloch-controls {
+  background: rgba(37, 40, 55, 0.8);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .coordinate-value {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  }
+  
+  .quantum-state-display {
+    border-width: 2px;
+  }
+  
+  .legend-color {
+    border: 1px solid #ffffff;
+  }
+}

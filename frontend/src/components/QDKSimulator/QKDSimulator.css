@@ -1,0 +1,252 @@
+.qkd-simulator {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(255, 0, 107, 0.1) 100%);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.processing-container {
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.processing-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+  animation: scanline 2s infinite;
+}
+
+@keyframes scanline {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.quantum-bits-display {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #00d4ff;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.security-alert {
+  animation: securityPulse 2s infinite;
+}
+
+@keyframes securityPulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(255, 0, 107, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(255, 0, 107, 0.8); }
+}
+
+.key-generation-animation {
+  position: relative;
+  overflow: hidden;
+}
+
+.key-generation-animation::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 136, 0.2) 50%, transparent 70%);
+  animation: keyFlow 3s infinite;
+}
+
+@keyframes keyFlow {
+  0% { transform: translateX(-100%) translateY(-100%); }
+  100% { transform: translateX(100%) translateY(100%); }
+}
+
+.encryption-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.encryption-status.encrypting {
+  animation: encryptionPulse 1.5s infinite;
+}
+
+@keyframes encryptionPulse {
+  0%, 100% { background: rgba(0, 255, 136, 0.1); }
+  50% { background: rgba(0, 255, 136, 0.2); }
+}
+
+.message-flow {
+  position: relative;
+  padding: 20px 0;
+}
+
+.alice-bob-channel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin: 20px 0;
+}
+
+.alice-node, .bob-node {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  position: relative;
+}
+
+.alice-node {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+
+.bob-node {
+  background: linear-gradient(135deg, #ff006b, #cc0055);
+  box-shadow: 0 0 20px rgba(255, 0, 107, 0.5);
+}
+
+.quantum-channel {
+  flex-grow: 1;
+  height: 4px;
+  background: linear-gradient(90deg, #00d4ff, #ff006b);
+  margin: 0 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.quantum-channel::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -10px;
+  width: 20px;
+  height: 8px;
+  background: #ffff00;
+  border-radius: 50%;
+  animation: photonTransmission 2s infinite linear;
+  box-shadow: 0 0 10px #ffff00;
+}
+
+@keyframes photonTransmission {
+  0% { left: -20px; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+.error-rate-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.error-rate-indicator.low {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.error-rate-indicator.medium {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.error-rate-indicator.high {
+  background: rgba(255, 0, 107, 0.2);
+  color: #ff006b;
+  border: 1px solid rgba(255, 0, 107, 0.3);
+  animation: errorAlert 2s infinite;
+}
+
+@keyframes errorAlert {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.bloch-sphere-container {
+  background: radial-gradient(circle at center, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.quantum-state-info {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.amplitude-display {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #00d4ff;
+  margin: 8px 0;
+}
+
+.phase-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.phase-0 { background: #00ff88; }
+.phase-90 { background: #00d4ff; }
+.phase-180 { background: #ff006b; }
+.phase-270 { background: #ffff00; }
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .alice-bob-channel {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .quantum-channel {
+    width: 4px;
+    height: 60px;
+    margin: 10px 0;
+  }
+  
+  .quantum-channel::before {
+    top: -10px;
+    left: -2px;
+    width: 8px;
+    height: 20px;
+    animation: photonTransmissionVertical 2s infinite linear;
+  }
+}
+
+@keyframes photonTransmissionVertical {
+  0% { top: -20px; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}

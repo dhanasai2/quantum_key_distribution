@@ -1,0 +1,104 @@
+/* src/components/EncryptionPanel.css */
+.encryption-panel {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.input-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.message-input {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    margin: 20px;
+}
+
+.architectures-container {
+    display: flex;
+    gap: 30px;
+    justify-content: space-between;
+}
+
+.architecture-panel {
+    flex: 1;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    background: #f8f9fa;
+}
+
+.architecture-panel.qkd {
+    border-color: #e74c3c;
+    background: linear-gradient(135deg, #fff5f5, #ffe6e6);
+}
+
+.architecture-panel.classical {
+    border-color: #3498db;
+    background: linear-gradient(135deg, #f5f8ff, #e6f2ff);
+}
+
+.process-steps {
+    margin: 20px 0;
+}
+
+.step {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: white;
+    border-radius: 5px;
+    border-left: 4px solid #3498db;
+}
+
+.qkd .step {
+    border-left-color: #e74c3c;
+}
+
+.security-alert {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.crypto-output {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 3px;
+    word-break: break-all;
+}
+
+.encrypt-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.qkd .encrypt-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.classical .encrypt-btn {
+    background: #3498db;
+    color: white;
+}
+
+.encrypt-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}

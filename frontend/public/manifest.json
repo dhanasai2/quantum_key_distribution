@@ -1,0 +1,57 @@
+{
+  "short_name": "QKD Simulator",
+  "name": "Quantum Key Distribution BB84 Simulator",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1a1d29",
+  "background_color": "#1a1d29",
+  "description": "Interactive quantum key distribution simulator using BB84 protocol with real IBM Quantum hardware integration",
+  "categories": ["education", "simulation", "quantum computing"],
+  "screenshots": [
+    {
+      "src": "screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "screenshot-narrow.png", 
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start BB84 Simulation",
+      "short_name": "BB84",
+      "description": "Launch the BB84 quantum key distribution simulator",
+      "url": "/?shortcut=bb84",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Bloch Sphere Visualization",
+      "short_name": "Bloch",
+      "description": "Interactive 3D Bloch sphere quantum state visualization",
+      "url": "/?shortcut=bloch",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    }
+  ]
+}
