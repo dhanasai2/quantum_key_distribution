@@ -41,7 +41,7 @@ const IBMQuantumSetupDialog = ({ open, onClose, onInitialize, isLoading, status 
         setValidationResult(null);
 
         try {
-            const iamResponse = await fetch('http://localhost:8000/api/quantum/iam-token', {
+            const iamResponse = await fetch('https://quantum-backend-1-3ele.onrender.com/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ api_key: token.trim() })
