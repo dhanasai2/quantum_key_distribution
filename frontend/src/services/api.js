@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = 'https://quantum-backend-yh9m.onrender.com';
 
 class QKDApiService {
     async generateQuantumKey(message, keyLength = 256, useRealQuantum = false) {
