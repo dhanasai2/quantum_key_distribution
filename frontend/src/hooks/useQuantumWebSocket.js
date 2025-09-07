@@ -1,12 +1,22 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
 
-const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => {
+const useQuantumWebSocket = (config = {}) => {
+    // ===== CONFIGURATION =====
+    const {
+        primaryConnection = 'render', // 'render', 'localhost', or 'auto'
+        fallbackConnection = 'localhost',
+        renderUrl = 'wss://quantum-backend-bf4k.onrender.com',
+        localhostUrl = 'http://localhost:8000',
+        autoFallback = true
+    } = config;
+
     // ===== CONNECTION STATE =====
     const [isConnected, setIsConnected] = useState(false);
     const [socket, setSocket] = useState(null);
     const [backendStatus, setBackendStatus] = useState(null);
-    const [connectionType_, setConnectionType] = useState(connectionType);
+    const [activeConnection, setActiveConnection] = useState(primaryConnection);
+    const [connectionAttempts, setConnectionAttempts] = useState(0);
 
     // ===== QUANTUM DATA STATE =====
     const [quantumState, setQuantumState] = useState(null);
@@ -38,34 +48,33 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
     const socketRef = useRef(null);
     const clientIdRef = useRef('quantum_client_' + Date.now());
     const reconnectTimeoutRef = useRef(null);
+    const connectionTypeRef = useRef(primaryConnection);
 
     // ===== UTILITY FUNCTIONS =====
     const addActivity = useCallback((action, type = 'LOG') => {
         const activity = { 
             action, 
             type, 
-            timestamp: new Date().toISOString() 
+            timestamp: new Date().toISOString(),
+            connection: activeConnection
         };
         setActivityLog(prev => [...prev.slice(-100), activity]);
-    }, []);
+    }, [activeConnection]);
 
     // ===== MESSAGE HANDLERS =====
     const handleQuantumStateUpdate = useCallback((data) => {
         setQuantumState(data);
         setQuantumUpdates(prev => [...prev.slice(-49), data]);
 
-        // Update current statistics
         if (data.statistics) {
             setCurrentStatistics(data.statistics);
         }
 
-        // Update progress
         if (data.progress !== undefined) {
             setTransmissionProgress(data.progress);
             setCurrentProgress(data.progress);
         }
 
-        // Add to real-time data for charts
         if (data.bit_index !== undefined) {
             const chartData = {
                 bitIndex: data.bit_index,
@@ -77,7 +86,6 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
             setRealTimeData(prev => [...prev.slice(-99), chartData]);
         }
 
-        // Update Alice and Bob data for transmission panel
         setAliceData({
             bit: data.alice_bit?.toString() || '0',
             basis: data.alice_basis_name?.charAt(0) || '+',
@@ -95,25 +103,25 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
         console.log('✅ BB84 Protocol Complete:', result);
         setQkdResults(result);
 
-        // Update transmission logs if provided
         if (result.transmission_logs) {
             setTransmissionLogs(result.transmission_logs);
         }
 
-        // Reset progress
         setTransmissionProgress(1);
         setCurrentProgress(1);
 
-        // Add completion to activity log
         addActivity(
-            `🎉 BB84 Complete: ${result.bb84_details?.final_key_length}-bit key generated with ${(result.bb84_details?.error_rate * 100)?.toFixed(2)}% QBER`,
+            `🎉 BB84 Complete: ${result.bb84_details?.final_key_length || result.final_key_length}-bit key generated with ${((result.bb84_details?.error_rate || result.error_rate) * 100)?.toFixed(2)}% QBER`,
             'SUCCESS'
         );
     }, [addActivity]);
 
     const handleMessage = useCallback((message) => {
+        // Handle both Socket.IO and WebSocket message formats
         const data = message.data || message;
         const messageType = message.type || message.event;
+
+        console.log(`📨 Received message [${activeConnection}]:`, messageType, data);
 
         switch (messageType) {
             case 'quantum_state_update':
@@ -188,139 +196,197 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
             default:
                 console.warn('Unhandled message type:', messageType, data);
         }
-    }, [handleQuantumStateUpdate, handleBB84Complete, addActivity]);
+    }, [activeConnection, handleQuantumStateUpdate, handleBB84Complete, addActivity]);
 
-    // ===== SOCKET.IO CONNECTION =====
-    const connectSocketIO = useCallback(() => {
-        console.log('🔌 Attempting to connect via Socket.IO...');
-        
-        const socketIOUrl = backendUrl || 'http://localhost:8000';
-        const newSocket = io(socketIOUrl, {
-            transports: ['websocket', 'polling'],
-            timeout: 10000,
-            reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 2000,
-            reconnectionDelayMax: 10000,
-            maxReconnectionAttempts: 10,
-            forceNew: true
+    // ===== RENDER WEBSOCKET CONNECTION (NATIVE) =====
+    const connectRenderWebSocket = useCallback(() => {
+        return new Promise((resolve, reject) => {
+            console.log('🔌 Attempting to connect to Render WebSocket...');
+            
+            const wsUrl = `${renderUrl}/ws/${clientIdRef.current}?token=abc123`;
+            const socket = new WebSocket(wsUrl);
+
+            const timeout = setTimeout(() => {
+                socket.close();
+                reject(new Error('Connection timeout'));
+            }, 10000);
+
+            socket.onopen = () => {
+                clearTimeout(timeout);
+                console.log('✅ Connected to Render Quantum WebSocket server');
+                setIsConnected(true);
+                setActiveConnection('render');
+                socketRef.current = socket;
+                setSocket({ 
+                    send: (data) => socket.send(data), 
+                    emit: (event, data) => socket.send(JSON.stringify({ type: event, ...data })),
+                    close: () => socket.close(),
+                    connectionType: 'websocket'
+                });
+                addActivity('🟢 Render WebSocket connection established', 'CONNECTION');
+
+                // Send initial request to backend
+                const initMessage = JSON.stringify({ type: 'get_backend_status' });
+                socket.send(initMessage);
+                
+                resolve(socket);
+            };
+
+            socket.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    handleMessage(message);
+                } catch (err) {
+                    console.error('⚠ Failed to parse message:', err);
+                    addActivity('⚠ Invalid message format received', 'ERROR');
+                }
+            };
+
+            socket.onclose = (event) => {
+                clearTimeout(timeout);
+                console.log('🔴 Disconnected from Render WebSocket server', event.code);
+                setIsConnected(false);
+                addActivity('🔌 Render WebSocket connection closed', 'CONNECTION');
+                
+                if (event.code !== 1000) { // Not a normal closure
+                    reject(new Error(`Connection closed with code ${event.code}`));
+                }
+            };
+
+            socket.onerror = (err) => {
+                clearTimeout(timeout);
+                console.error('🚨 Render WebSocket error:', err);
+                addActivity('🚨 Render WebSocket encountered an error', 'ERROR');
+                reject(err);
+            };
         });
+    }, [renderUrl, addActivity, handleMessage]);
 
-        // ===== CONNECTION EVENTS =====
-        newSocket.on('connect', () => {
-            console.log('✅ Connected to Enhanced QKD WebSocket Server (Socket.IO)');
-            setIsConnected(true);
-            setSocket(newSocket);
-            socketRef.current = newSocket;
-            addActivity('🟢 Socket.IO connection established', 'CONNECTION');
+    // ===== LOCALHOST SOCKET.IO CONNECTION =====
+    const connectLocalhostSocketIO = useCallback(() => {
+        return new Promise((resolve, reject) => {
+            console.log('🔌 Attempting to connect to Localhost Socket.IO...');
+            
+            const newSocket = io(localhostUrl, {
+                transports: ['websocket', 'polling'],
+                timeout: 10000,
+                reconnection: false, // We handle reconnection manually
+                forceNew: true
+            });
 
-            // Clear any reconnection timeout
-            if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current);
-                reconnectTimeoutRef.current = null;
-            }
-        });
+            const timeout = setTimeout(() => {
+                newSocket.close();
+                reject(new Error('Socket.IO connection timeout'));
+            }, 10000);
 
-        newSocket.on('disconnect', () => {
-            console.log('❌ Disconnected from QKD WebSocket Server');
-            setIsConnected(false);
-            addActivity('🔌 Socket.IO connection closed', 'CONNECTION');
+            newSocket.on('connect', () => {
+                clearTimeout(timeout);
+                console.log('✅ Connected to Localhost Socket.IO server');
+                setIsConnected(true);
+                setActiveConnection('localhost');
+                socketRef.current = newSocket;
+                setSocket(newSocket);
+                addActivity('🟢 Localhost Socket.IO connection established', 'CONNECTION');
 
-            // Set up reconnection timeout
-            reconnectTimeoutRef.current = setTimeout(() => {
-                console.log('🔄 Attempting to reconnect...');
-                connectSocketIO();
-            }, 3000);
-        });
+                // Setup all Socket.IO event listeners
+                const events = [
+                    'quantum_state_update', 'bb84_complete', 'encryption_result', 'decryption_result',
+                    'activity_log', 'security_alert', 'eavesdropper_chart_update', 'transmission_log_update',
+                    'quantum_initialization', 'backend_status_update', 'quantum_hardware_feedback',
+                    'quantum_fallback_notice', 'backend_status'
+                ];
 
-        newSocket.on('connect_error', (error) => {
-            console.error('❌ Socket.IO connection error:', error);
-            setIsConnected(false);
-            addActivity('🚨 Socket.IO connection error', 'ERROR');
-        });
+                events.forEach(event => {
+                    newSocket.on(event, (data) => {
+                        handleMessage({ type: event, data });
+                    });
+                });
 
-        // ===== ALL EVENT HANDLERS =====
-        const events = [
-            'quantum_state_update', 'bb84_complete', 'encryption_result', 'decryption_result',
-            'activity_log', 'security_alert', 'eavesdropper_chart_update', 'transmission_log_update',
-            'quantum_initialization', 'backend_status_update', 'quantum_hardware_feedback',
-            'quantum_fallback_notice', 'backend_status'
-        ];
+                resolve(newSocket);
+            });
 
-        events.forEach(event => {
-            newSocket.on(event, (data) => {
-                handleMessage({ type: event, data });
+            newSocket.on('connect_error', (error) => {
+                clearTimeout(timeout);
+                console.error('❌ Socket.IO connection error:', error);
+                addActivity('🚨 Socket.IO connection error', 'ERROR');
+                reject(error);
+            });
+
+            newSocket.on('disconnect', () => {
+                setIsConnected(false);
+                addActivity('🔌 Socket.IO connection closed', 'CONNECTION');
             });
         });
+    }, [localhostUrl, addActivity, handleMessage]);
 
-        return newSocket;
-    }, [backendUrl, addActivity, handleMessage]);
-
-    // ===== NATIVE WEBSOCKET CONNECTION =====
-    const connectWebSocket = useCallback(() => {
-        console.log('🔌 Attempting to connect via Native WebSocket...');
-        
-        const wsUrl = backendUrl || `wss://quantum-backend-bf4k.onrender.com/ws/${clientIdRef.current}?token=abc123`;
-        const socket = new WebSocket(wsUrl);
-
-        socket.onopen = () => {
-            console.log('✅ Connected to Quantum WebSocket server (Native)');
-            setIsConnected(true);
-            socketRef.current = socket;
-            setSocket({ send: (data) => socket.send(data), emit: () => {} }); // Compatibility layer
-            addActivity('🟢 Native WebSocket connection established', 'CONNECTION');
-
-            // Send initial request to backend
-            const initMessage = JSON.stringify({ type: 'get_backend_status' });
-            socket.send(initMessage);
-        };
-
-        socket.onmessage = (event) => {
-            try {
-                const message = JSON.parse(event.data);
-                handleMessage(message);
-            } catch (err) {
-                console.error('⚠ Failed to parse message:', err);
-                addActivity('⚠ Invalid message format received', 'ERROR');
+    // ===== SMART CONNECTION LOGIC =====
+    const attemptConnection = useCallback(async (connectionType) => {
+        try {
+            setConnectionAttempts(prev => prev + 1);
+            
+            if (connectionType === 'render') {
+                await connectRenderWebSocket();
+                return true;
+            } else if (connectionType === 'localhost') {
+                await connectLocalhostSocketIO();
+                return true;
             }
-        };
+            return false;
+        } catch (error) {
+            console.error(`❌ Failed to connect via ${connectionType}:`, error);
+            addActivity(`❌ ${connectionType} connection failed: ${error.message}`, 'ERROR');
+            return false;
+        }
+    }, [connectRenderWebSocket, connectLocalhostSocketIO, addActivity]);
 
-        socket.onclose = (event) => {
-            console.log('🔴 Disconnected from Quantum WebSocket server', event.code);
-            setIsConnected(false);
-            addActivity('🔌 Native WebSocket connection closed', 'CONNECTION');
+    const connectWithFallback = useCallback(async () => {
+        const connectionsToTry = primaryConnection === 'auto' 
+            ? ['render', 'localhost'] 
+            : [primaryConnection, ...(autoFallback ? [fallbackConnection] : [])];
 
-            // Reconnect after delay
-            reconnectTimeoutRef.current = setTimeout(connectWebSocket, 3000);
-        };
+        for (const connectionType of connectionsToTry) {
+            console.log(`🔄 Trying ${connectionType} connection...`);
+            
+            const success = await attemptConnection(connectionType);
+            if (success) {
+                connectionTypeRef.current = connectionType;
+                setConnectionAttempts(0);
+                return;
+            }
+            
+            // Wait before trying next connection
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
 
-        socket.onerror = (err) => {
-            console.error('🚨 Native WebSocket error:', err);
-            addActivity('🚨 Native WebSocket encountered an error', 'ERROR');
-        };
-
-        return socket;
-    }, [backendUrl, addActivity, handleMessage]);
+        // If all connections failed, schedule retry
+        console.log('❌ All connection attempts failed. Retrying in 5 seconds...');
+        addActivity('❌ All connections failed. Retrying...', 'ERROR');
+        
+        reconnectTimeoutRef.current = setTimeout(() => {
+            connectWithFallback();
+        }, 5000);
+    }, [primaryConnection, fallbackConnection, autoFallback, attemptConnection, addActivity]);
 
     // ===== CONNECTION SETUP =====
     useEffect(() => {
-        const connect = connectionType_ === 'socketio' ? connectSocketIO : connectWebSocket;
-        const socket = connect();
+        connectWithFallback();
 
         // Cleanup function
         return () => {
-            console.log('🧹 Cleaning up WebSocket connection...');
+            console.log('🧹 Cleaning up WebSocket connections...');
 
             if (reconnectTimeoutRef.current) {
                 clearTimeout(reconnectTimeoutRef.current);
             }
 
-            if (socket) {
-                if (connectionType_ === 'socketio') {
-                    socket.removeAllListeners();
-                    socket.close();
-                } else {
-                    socket.close();
+            if (socketRef.current) {
+                if (socketRef.current.removeAllListeners) {
+                    socketRef.current.removeAllListeners();
+                }
+                if (socketRef.current.close) {
+                    socketRef.current.close();
+                } else if (socketRef.current.disconnect) {
+                    socketRef.current.disconnect();
                 }
             }
 
@@ -328,17 +394,20 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
             setSocket(null);
             socketRef.current = null;
         };
-    }, [connectionType_, connectSocketIO, connectWebSocket]);
+    }, [connectWithFallback]);
 
     // ===== SEND MESSAGE FUNCTION =====
     const sendMessage = useCallback((message) => {
         if (!socketRef.current || !isConnected) {
             console.error('❌ No WebSocket connection available');
+            addActivity('❌ Cannot send message: No connection', 'ERROR');
             return false;
         }
 
         try {
-            if (connectionType_ === 'socketio') {
+            console.log(`📤 Sending message via ${activeConnection}:`, message);
+
+            if (activeConnection === 'localhost' && socketRef.current.emit) {
                 // Socket.IO emit
                 const eventName = message.type || 'message';
                 const data = { ...message };
@@ -346,23 +415,27 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
                 socketRef.current.emit(eventName, data);
             } else {
                 // Native WebSocket send
-                socketRef.current.send(JSON.stringify(message));
+                if (socketRef.current.send) {
+                    socketRef.current.send(JSON.stringify(message));
+                } else {
+                    console.error('❌ Socket does not have send method');
+                    return false;
+                }
             }
             return true;
         } catch (error) {
             console.error('❌ Failed to send message:', error);
+            addActivity(`❌ Failed to send message: ${error.message}`, 'ERROR');
             return false;
         }
-    }, [isConnected, connectionType_]);
+    }, [isConnected, activeConnection, addActivity]);
 
     // ===== IBM QUANTUM FUNCTIONS =====
     const initializeIBMQuantum = useCallback(async (token, instance = null) => {
-        if (connectionType_ === 'socketio') {
+        if (activeConnection === 'localhost') {
             try {
-                const socketIOUrl = backendUrl || 'http://localhost:8000';
-                
                 // First, validate token via REST API
-                const response = await fetch(`${socketIOUrl}/api/quantum/iam-token`, {
+                const response = await fetch(`${localhostUrl}/api/quantum/iam-token`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ api_key: token })
@@ -374,7 +447,7 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
                 }
 
                 // Then initialize with the original token
-                const initResponse = await fetch(`${socketIOUrl}/api/quantum/initialize`, {
+                const initResponse = await fetch(`${localhostUrl}/api/quantum/initialize`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token, instance })
@@ -398,20 +471,19 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
                 return { success: false, error: error.message };
             }
         } else {
-            // For native WebSocket, send initialization message
+            // For Render WebSocket, send initialization message
             return sendMessage({
                 type: 'initialize_ibm_quantum',
                 token,
                 instance
             });
         }
-    }, [connectionType_, backendUrl, sendMessage]);
+    }, [activeConnection, localhostUrl, sendMessage]);
 
     const getQuantumBackendStatus = useCallback(async () => {
-        if (connectionType_ === 'socketio') {
+        if (activeConnection === 'localhost') {
             try {
-                const socketIOUrl = backendUrl || 'http://localhost:8000';
-                const response = await fetch(`${socketIOUrl}/api/quantum/status`);
+                const response = await fetch(`${localhostUrl}/api/quantum/status`);
                 const result = await response.json();
 
                 if (result.success) {
@@ -426,7 +498,7 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
         } else {
             return sendMessage({ type: 'get_backend_status' });
         }
-    }, [connectionType_, backendUrl, sendMessage]);
+    }, [activeConnection, localhostUrl, sendMessage]);
 
     // ===== QUANTUM OPERATIONS =====
     const startEnhancedBB84 = useCallback((message, keyLength, useRealQuantum = false) => {
@@ -479,7 +551,7 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
     // ===== EAVESDROPPER ANALYSIS =====
     const simulateAdvancedEavesdropper = useCallback(() => {
         console.log('🕵️ Starting Advanced Eavesdropper Analysis');
-        setEavesdropperChartData([]); // Reset chart data
+        setEavesdropperChartData([]);
         return sendMessage({ type: 'simulate_advanced_eavesdropper' });
     }, [sendMessage]);
 
@@ -503,25 +575,55 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
         return sendMessage({ type: eventName, ...data });
     }, [sendMessage]);
 
-    // ===== CONNECTION TYPE SWITCHER =====
-    const switchConnectionType = useCallback((newType) => {
-        if (newType !== connectionType_) {
-            // Close current connection
-            if (socketRef.current) {
-                if (connectionType_ === 'socketio') {
-                    socketRef.current.removeAllListeners();
-                    socketRef.current.close();
-                } else {
-                    socketRef.current.close();
-                }
+    const forceReconnect = useCallback(() => {
+        if (socketRef.current) {
+            if (socketRef.current.close) {
+                socketRef.current.close();
+            } else if (socketRef.current.disconnect) {
+                socketRef.current.disconnect();
             }
-            
-            setIsConnected(false);
-            setSocket(null);
-            socketRef.current = null;
-            setConnectionType(newType);
         }
-    }, [connectionType_]);
+        setIsConnected(false);
+        setSocket(null);
+        socketRef.current = null;
+        
+        setTimeout(() => {
+            connectWithFallback();
+        }, 1000);
+    }, [connectWithFallback]);
+
+    const switchConnection = useCallback(async (newConnectionType) => {
+        console.log(`🔄 Switching to ${newConnectionType} connection...`);
+        
+        // Close current connection
+        if (socketRef.current) {
+            if (socketRef.current.removeAllListeners) {
+                socketRef.current.removeAllListeners();
+            }
+            if (socketRef.current.close) {
+                socketRef.current.close();
+            } else if (socketRef.current.disconnect) {
+                socketRef.current.disconnect();
+            }
+        }
+
+        setIsConnected(false);
+        setSocket(null);
+        socketRef.current = null;
+
+        // Attempt new connection
+        setTimeout(async () => {
+            const success = await attemptConnection(newConnectionType);
+            if (success) {
+                connectionTypeRef.current = newConnectionType;
+                addActivity(`✅ Switched to ${newConnectionType}`, 'CONNECTION');
+            } else {
+                addActivity(`❌ Failed to switch to ${newConnectionType}`, 'ERROR');
+                // Fall back to original logic
+                connectWithFallback();
+            }
+        }, 500);
+    }, [attemptConnection, addActivity, connectWithFallback]);
 
     // ===== RETURN HOOK API =====
     return {
@@ -529,7 +631,8 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
         isConnected,
         socket,
         backendStatus,
-        connectionType: connectionType_,
+        activeConnection,
+        connectionAttempts,
 
         // IBM Quantum state
         ibmQuantumStatus,
@@ -574,7 +677,8 @@ const useQuantumWebSocket = (connectionType = 'socketio', backendUrl = null) => 
         resetAllData,
         sendMessage,
         sendCustomMessage,
-        switchConnectionType
+        forceReconnect,
+        switchConnection
     };
 };
 
