@@ -38,59 +38,60 @@ const useQuantumWebSocket = () => {
 
   // ===== WEBSOCKET CONNECTION =====
   useEffect(() => {
-  const connectWebSocket = () => {
-    const socket = new WebSocket(
-      wss://quantum-backend-bf4k.onrender.com/ws/${clientIdRef.current}?token=abc123
-    );
+    const connectWebSocket = () => {
+      const socket = new WebSocket(
+        `wss://quantum-backend-bf4k.onrender.com/ws/${clientIdRef.current}?token=abc123`
+      );
 
-    socket.onopen = () => {
-      console.log('✅ Connected to Quantum WebSocket server');
-      setIsConnected(true);
-      socketRef.current = socket;
-      addActivity('🟢 Real-time connection established', 'CONNECTION');
+      socket.onopen = () => {
+        console.log('✅ Connected to Quantum WebSocket server');
+        setIsConnected(true);
+        socketRef.current = socket;
+        addActivity('🟢 Real-time connection established', 'CONNECTION');
 
-      // Send initial request to backend
-      const initMessage = JSON.stringify({ type: 'get_backend_status' });
-      socket.send(initMessage);
+        // Send initial request to backend
+        const initMessage = JSON.stringify({ type: 'get_backend_status' });
+        socket.send(initMessage);
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          handleMessage(message);
+        } catch (err) {
+          console.error('⚠ Failed to parse message:', err);
+          addActivity('⚠ Invalid message format received', 'ERROR');
+        }
+      };
+
+      socket.onclose = (event) => {
+        console.log('🔴 Disconnected from Quantum WebSocket server', event.code);
+        setIsConnected(false);
+        addActivity('🔌 Connection closed', 'CONNECTION');
+
+        // Reconnect after delay
+        reconnectTimeoutRef.current = setTimeout(connectWebSocket, 3000);
+      };
+
+      socket.onerror = (err) => {
+        console.error('🚨 WebSocket error:', err);
+        addActivity('🚨 WebSocket encountered an error', 'ERROR');
+      };
     };
 
-    socket.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        handleMessage(message);
-      } catch (err) {
-        console.error('⚠ Failed to parse message:', err);
-        addActivity('⚠ Invalid message format received', 'ERROR');
+    connectWebSocket();
+
+    // Cleanup on unmount
+    return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      if (socketRef.current) {
+        socketRef.current.close();
       }
     };
+  }, []);
 
-    socket.onclose = (event) => {
-      console.log('🔴 Disconnected from Quantum WebSocket server', event.code);
-      setIsConnected(false);
-      addActivity('🔌 Connection closed', 'CONNECTION');
-
-      // Reconnect after delay
-      reconnectTimeoutRef.current = setTimeout(connectWebSocket, 3000);
-    };
-
-    socket.onerror = (err) => {
-      console.error('🚨 WebSocket error:', err);
-      addActivity('🚨 WebSocket encountered an error', 'ERROR');
-    };
-  };
-
-  connectWebSocket();
-
-  // Cleanup on unmount
-  return () => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-    }
-    if (socketRef.current) {
-      socketRef.current.close();
-    }
-  };
-}, []);
   // ===== HANDLE INCOMING MESSAGES =====
   const handleMessage = useCallback((message) => {
     switch (message.type) {
@@ -119,7 +120,7 @@ const useQuantumWebSocket = () => {
         setAliceData({
           bit: data.alice_bit?.toString() || '0',
           basis: data.alice_basis_name?.charAt(0) || '+',
-          state: |${data.alice_bit || 0}⟩${data.alice_basis === 0 ? '_z' : '_x'}
+          state: `|${data.alice_bit || 0}⟩${data.alice_basis === 0 ? '_z' : '_x'}`
         });
         setBobData({
           basis: data.bob_basis_name?.charAt(0) || 'x',
@@ -130,7 +131,7 @@ const useQuantumWebSocket = () => {
 
       case 'security_alert':
         setSecurityAlerts(prev => [...prev.slice(-10), message.data]);
-        addActivity(🚨 ${message.data.message}, 'SECURITY_ALERT');
+        addActivity(`🚨 ${message.data.message}`, 'SECURITY_ALERT');
         break;
 
       case 'activity_log':
@@ -147,7 +148,7 @@ const useQuantumWebSocket = () => {
         setTransmissionProgress(1);
         setCurrentProgress(1);
         addActivity(
-          🎉 BB84 Complete: ${message.data.bb84_details?.final_key_length}-bit key generated with ${(message.data.bb84_details?.error_rate * 100)?.toFixed(2)}% QBER,
+          `🎉 BB84 Complete: ${message.data.bb84_details?.final_key_length}-bit key generated with ${(message.data.bb84_details?.error_rate * 100)?.toFixed(2)}% QBER`,
           'SUCCESS'
         );
         break;
