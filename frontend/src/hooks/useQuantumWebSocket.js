@@ -6,7 +6,8 @@ const useQuantumWebSocket = () => {
     const [isConnected, setIsConnected] = useState(false);
     const [socket, setSocket] = useState(null);
     const [backendStatus, setBackendStatus] = useState(null);
-
+    const [connectionError, setConnectionError] = useState(null);
+    
     // ===== QUANTUM DATA STATE =====
     const [quantumState, setQuantumState] = useState(null);
     const [quantumUpdates, setQuantumUpdates] = useState([]);
@@ -14,11 +15,11 @@ const useQuantumWebSocket = () => {
     const [encryptionResults, setEncryptionResults] = useState(null);
     const [decryptionResults, setDecryptionResults] = useState(null);
     const [currentStatistics, setCurrentStatistics] = useState(null);
-
+    
     // ===== IBM QUANTUM STATE =====
     const [ibmQuantumStatus, setIbmQuantumStatus] = useState(null);
     const [quantumBackendInfo, setQuantumBackendInfo] = useState(null);
-
+    
     // ===== REAL-TIME DATA =====
     const [activityLog, setActivityLog] = useState([]);
     const [securityAlerts, setSecurityAlerts] = useState([]);
@@ -26,31 +27,37 @@ const useQuantumWebSocket = () => {
     const [eavesdropperChartData, setEavesdropperChartData] = useState([]);
     const [transmissionProgress, setTransmissionProgress] = useState(0);
     const [currentProgress, setCurrentProgress] = useState(0);
-
+    
     // ===== TRANSMISSION STATE =====
     const [transmissionLogs, setTransmissionLogs] = useState([]);
     const [aliceData, setAliceData] = useState(null);
     const [bobData, setBobData] = useState(null);
     const [quantumHardwareFeedback, setQuantumHardwareFeedback] = useState([]);
-
+    
     // ===== REFS =====
     const socketRef = useRef(null);
     const reconnectTimeoutRef = useRef(null);
 
+    // ===== CONFIGURATION =====
+    const BACKEND_URL = 'https://quantum-backend-yh9m.onrender.com';
+    
     // ===== SOCKET CONNECTION SETUP =====
     useEffect(() => {
         const connectSocket = () => {
-            console.log('🔌 Attempting to connect to Quantum WebSocket...');
-
-            const newSocket = io('https://quantum-backend-yh9m.onrender.com', {
+            console.log(`🔌 Attempting to connect to: ${BACKEND_URL}`);
+            
+            const newSocket = io(BACKEND_URL, {
                 transports: ['websocket', 'polling'],
-                timeout: 10000,
+                timeout: 30000,
                 reconnection: true,
-                reconnectionAttempts: 5,
-                reconnectionDelay: 2000,
+                reconnectionAttempts: 10,
+                reconnectionDelay: 3000,
                 reconnectionDelayMax: 10000,
-                maxReconnectionAttempts: 10,
-                forceNew: true
+                autoConnect: true,
+                forceNew: false,
+                // Add these for better connection handling
+                upgrade: true,
+                rememberUpgrade: true
             });
 
             // ===== CONNECTION EVENTS =====
@@ -58,80 +65,66 @@ const useQuantumWebSocket = () => {
                 console.log('✅ Connected to Enhanced QKD WebSocket Server');
                 setIsConnected(true);
                 setSocket(newSocket);
+                setConnectionError(null);
                 socketRef.current = newSocket;
-
-                // Clear any reconnection timeout
+                
                 if (reconnectTimeoutRef.current) {
                     clearTimeout(reconnectTimeoutRef.current);
                     reconnectTimeoutRef.current = null;
                 }
             });
 
-            newSocket.on('disconnect', () => {
-                console.log('❌ Disconnected from QKD WebSocket Server');
+            newSocket.on('disconnect', (reason) => {
+                console.log(`❌ Disconnected from QKD WebSocket Server: ${reason}`);
                 setIsConnected(false);
-
-                // Set up reconnection timeout
-                reconnectTimeoutRef.current = setTimeout(() => {
-                    console.log('🔄 Attempting to reconnect...');
-                    connectSocket();
-                }, 3000);
+                setConnectionError(`Disconnected: ${reason}`);
+                
+                // Only attempt reconnection for certain reasons
+                if (reason !== 'io client disconnect') {
+                    reconnectTimeoutRef.current = setTimeout(() => {
+                        console.log('🔄 Attempting to reconnect...');
+                        connectSocket();
+                    }, 5000);
+                }
             });
 
             newSocket.on('connect_error', (error) => {
                 console.error('❌ WebSocket connection error:', error);
                 setIsConnected(false);
+                setConnectionError(`Connection failed: ${error.message}`);
             });
 
-            // ===== IBM QUANTUM EVENTS =====
-            newSocket.on('quantum_initialization', (data) => {
-                console.log('🚀 IBM Quantum Initialization Result:', data);
-                setIbmQuantumStatus(data);
-                if (data.success) {
-                    setQuantumBackendInfo({
-                        backend_name: data.backend_name,
-                        quantum_hardware: data.quantum_hardware,
-                        operational: data.operational,
-                        pending_jobs: data.pending_jobs
-                    });
-                }
+            newSocket.on('reconnect', (attemptNumber) => {
+                console.log(`🔄 Reconnected after ${attemptNumber} attempts`);
             });
 
-            newSocket.on('backend_status_update', (data) => {
-                console.log('📊 Backend Status Update:', data);
-                setQuantumBackendInfo(data);
+            newSocket.on('reconnect_error', (error) => {
+                console.error('❌ Reconnection error:', error);
             });
 
-            newSocket.on('quantum_hardware_feedback', (data) => {
-                console.log('🔮 Hardware Feedback:', data);
-                setQuantumHardwareFeedback(prev => [...prev, data]);
-            });
-
-            newSocket.on('quantum_fallback_notice', (data) => {
-                console.warn('⚠️ Quantum Fallback:', data.message);
-                setActivityLog(prev => [...prev, {
-                    action: `⚠️ ${data.message}`,
-                    timestamp: new Date().toISOString(),
-                    type: 'FALLBACK'
-                }]);
+            // ===== BACKEND CONNECTED EVENT =====
+            newSocket.on('connected', (data) => {
+                console.log('🎉 Backend Connected:', data);
+                setBackendStatus({ connected: true, ...data });
             });
 
             // ===== QUANTUM STATE EVENTS =====
             newSocket.on('quantum_state_update', (data) => {
+                console.log('📊 Quantum State Update:', data);
                 setQuantumState(data);
                 setQuantumUpdates(prev => [...prev.slice(-49), data]);
-
+                
                 // Update current statistics
                 if (data.statistics) {
                     setCurrentStatistics(data.statistics);
                 }
-
+                
                 // Update progress
                 if (data.progress !== undefined) {
                     setTransmissionProgress(data.progress);
                     setCurrentProgress(data.progress);
                 }
-
+                
                 // Add to real-time data for charts
                 if (data.bit_index !== undefined) {
                     const chartData = {
@@ -143,16 +136,16 @@ const useQuantumWebSocket = () => {
                     };
                     setRealTimeData(prev => [...prev.slice(-99), chartData]);
                 }
-
+                
                 // Update Alice and Bob data for transmission panel
                 setAliceData({
                     bit: data.alice_bit?.toString() || '0',
-                    basis: data.alice_basis_name?.charAt(0) || '+',
+                    basis: data.alice_basis_name?.charAt(0) || 'Z',
                     state: `|${data.alice_bit || 0}⟩${data.alice_basis === 0 ? '_z' : '_x'}`
                 });
-
+                
                 setBobData({
-                    basis: data.bob_basis_name?.charAt(0) || 'x',
+                    basis: data.bob_basis_name?.charAt(0) || 'Z',
                     measured: data.bob_measurement?.toString() || '0',
                     match: data.bases_match ? 'Yes' : 'No'
                 });
@@ -161,26 +154,28 @@ const useQuantumWebSocket = () => {
             // ===== TRANSMISSION LOG EVENTS =====
             newSocket.on('transmission_log_update', (data) => {
                 console.log('📝 Transmission Log Update:', data);
-                setTransmissionLogs(prev => [...prev, data.log_entry]);
+                if (data.log_entry) {
+                    setTransmissionLogs(prev => [...prev, data.log_entry]);
+                }
             });
 
             // ===== BB84 COMPLETION =====
             newSocket.on('bb84_complete', (result) => {
                 console.log('✅ BB84 Protocol Complete:', result);
                 setQkdResults(result);
-
+                
                 // Update transmission logs if provided
                 if (result.transmission_logs) {
                     setTransmissionLogs(result.transmission_logs);
                 }
-
+                
                 // Reset progress
                 setTransmissionProgress(1);
                 setCurrentProgress(1);
-
+                
                 // Add completion to activity log
                 setActivityLog(prev => [...prev, {
-                    action: `🎉 BB84 Complete: ${result.bb84_details?.final_key_length}-bit key generated with ${(result.bb84_details?.error_rate * 100)?.toFixed(2)}% QBER`,
+                    action: `🎉 BB84 Complete: ${result.bb84_details?.final_key_length || 0}-bit key generated`,
                     timestamp: new Date().toISOString(),
                     type: 'SUCCESS'
                 }]);
@@ -188,6 +183,7 @@ const useQuantumWebSocket = () => {
 
             // ===== ACTIVITY & LOGGING =====
             newSocket.on('activity_log', (log) => {
+                console.log('📋 Activity Log:', log);
                 setActivityLog(prev => [...prev, {
                     ...log,
                     timestamp: log.timestamp || new Date().toISOString()
@@ -204,24 +200,14 @@ const useQuantumWebSocket = () => {
 
             // ===== EAVESDROPPER ANALYSIS =====
             newSocket.on('eavesdropper_chart_update', (data) => {
+                console.log('📈 Eavesdropper Chart Update:', data);
                 setEavesdropperChartData(prev => [...prev, data]);
-            });
-
-            // ===== ENCRYPTION/DECRYPTION =====
-            newSocket.on('encryption_result', (result) => {
-                console.log('🔐 Encryption Result:', result);
-                setEncryptionResults(result);
-            });
-
-            newSocket.on('decryption_result', (result) => {
-                console.log('🔓 Decryption Result:', result);
-                setDecryptionResults(result);
             });
 
             // ===== BACKEND STATUS =====
             newSocket.on('backend_status', (status) => {
                 console.log('⚡ Backend Status:', status);
-                setBackendStatus(status.data);
+                setBackendStatus(status);
             });
 
             return newSocket;
@@ -232,23 +218,20 @@ const useQuantumWebSocket = () => {
         // Cleanup function
         return () => {
             console.log('🧹 Cleaning up WebSocket connection...');
-
             if (reconnectTimeoutRef.current) {
                 clearTimeout(reconnectTimeoutRef.current);
             }
-
             if (socket) {
                 socket.removeAllListeners();
-                socket.close();
+                socket.disconnect();
             }
-
             setIsConnected(false);
             setSocket(null);
             socketRef.current = null;
         };
     }, []);
 
-    // ===== IBM QUANTUM FUNCTIONS =====
+    // ===== API FUNCTIONS WITH FIXED URLS =====
     const initializeIBMQuantum = useCallback(async (token, instance = null) => {
         if (!socket) {
             console.error('❌ No WebSocket connection available');
@@ -256,8 +239,7 @@ const useQuantumWebSocket = () => {
         }
 
         try {
-            // First, validate token via REST API
-            const response = await fetch('http://localhost:8000/api/quantum/iam-token', {
+            const response = await fetch(`${BACKEND_URL}/api/quantum/iam-token`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -265,14 +247,16 @@ const useQuantumWebSocket = () => {
                 body: JSON.stringify({ api_key: token })
             });
 
-            const tokenResult = await response.json();
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
+            const tokenResult = await response.json();
             if (!tokenResult.success) {
                 return { success: false, error: tokenResult.error };
             }
 
-            // Then initialize with the original token
-            const initResponse = await fetch('http://localhost:8000/api/quantum/initialize', {
+            const initResponse = await fetch(`${BACKEND_URL}/api/quantum/initialize`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -280,8 +264,11 @@ const useQuantumWebSocket = () => {
                 body: JSON.stringify({ token, instance })
             });
 
-            const result = await initResponse.json();
+            if (!initResponse.ok) {
+                throw new Error(`HTTP error! status: ${initResponse.status}`);
+            }
 
+            const result = await initResponse.json();
             if (result.success) {
                 setIbmQuantumStatus(result);
                 setQuantumBackendInfo({
@@ -301,15 +288,15 @@ const useQuantumWebSocket = () => {
 
     const getQuantumBackendStatus = useCallback(async () => {
         if (!socket) return null;
-
+        
         try {
-            const response = await fetch('http://localhost:8000/api/quantum/status');
-            const result = await response.json();
-
-            if (result.success) {
-                setQuantumBackendInfo(result);
+            const response = await fetch(`${BACKEND_URL}/api/status`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-
+            
+            const result = await response.json();
+            setQuantumBackendInfo(result);
             return result;
         } catch (error) {
             console.error('❌ Backend status error:', error);
@@ -319,13 +306,13 @@ const useQuantumWebSocket = () => {
 
     // ===== QUANTUM KEY GENERATION =====
     const startEnhancedBB84 = useCallback((message, keyLength, useRealQuantum = false) => {
-        if (!socket) {
+        if (!socket || !isConnected) {
             console.error('❌ No WebSocket connection');
             return;
         }
 
         console.log(`🚀 Starting Enhanced BB84: ${keyLength}-bit key, Real Quantum: ${useRealQuantum}`);
-
+        
         // Reset all related state
         setQkdResults(null);
         setTransmissionLogs([]);
@@ -334,58 +321,30 @@ const useQuantumWebSocket = () => {
         setTransmissionProgress(0);
         setCurrentProgress(0);
         setQuantumHardwareFeedback([]);
+        setEavesdropperChartData([]);
 
         socket.emit('start_complete_bb84', {
             message,
             key_length: keyLength,
             use_real_quantum: useRealQuantum
         });
-    }, [socket]);
+    }, [socket, isConnected]);
 
     const startLiveBB84 = useCallback((keyLength, useRealQuantum = false) => {
         startEnhancedBB84('Live BB84 Key Generation', keyLength, useRealQuantum);
     }, [startEnhancedBB84]);
 
-    // ===== ENCRYPTION/DECRYPTION =====
-    const encryptMessage = useCallback((plaintext) => {
-        if (!socket) {
-            console.error('❌ No WebSocket connection');
-            return;
-        }
-
-        socket.emit('encrypt_aes', { plaintext });
-    }, [socket]);
-
-    const decryptMessage = useCallback((ciphertext) => {
-        if (!socket) {
-            console.error('❌ No WebSocket connection');
-            return;
-        }
-
-        socket.emit('decrypt_aes', { ciphertext });
-    }, [socket]);
-
-    const encryptWithClassical = useCallback((plaintext) => {
-        // Placeholder for classical encryption
-        encryptMessage(plaintext);
-    }, [encryptMessage]);
-
-    const decryptWithClassical = useCallback((ciphertext) => {
-        // Placeholder for classical decryption
-        decryptMessage(ciphertext);
-    }, [decryptMessage]);
-
     // ===== EAVESDROPPER ANALYSIS =====
     const simulateAdvancedEavesdropper = useCallback(() => {
-        if (!socket) {
+        if (!socket || !isConnected) {
             console.error('❌ No WebSocket connection');
             return;
         }
-
+        
         console.log('🕵️ Starting Advanced Eavesdropper Analysis');
         setEavesdropperChartData([]); // Reset chart data
-        socket.emit('simulate_advanced_eavesdropper');
-    }, [socket]);
+        socket.emit('simulate_advanced_eavesdropper', {});
+    }, [socket, isConnected]);
 
     // ===== UTILITY FUNCTIONS =====
     const resetAllData = useCallback(() => {
@@ -404,13 +363,28 @@ const useQuantumWebSocket = () => {
     }, []);
 
     const sendCustomMessage = useCallback((eventName, data) => {
-        if (!socket) {
+        if (!socket || !isConnected) {
             console.error('❌ No WebSocket connection');
             return;
         }
-
         socket.emit(eventName, data);
-    }, [socket]);
+    }, [socket, isConnected]);
+
+    // ===== CONNECTION TEST =====
+    const testConnection = useCallback(async () => {
+        try {
+            const response = await fetch(`${BACKEND_URL}/health`);
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Backend health check passed:', data);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('❌ Backend health check failed:', error);
+            return false;
+        }
+    }, []);
 
     // ===== RETURN HOOK API =====
     return {
@@ -418,11 +392,12 @@ const useQuantumWebSocket = () => {
         isConnected,
         socket,
         backendStatus,
-
+        connectionError,
+        
         // IBM Quantum state
         ibmQuantumStatus,
         quantumBackendInfo,
-
+        
         // Quantum data
         quantumState,
         quantumUpdates,
@@ -430,7 +405,7 @@ const useQuantumWebSocket = () => {
         encryptionResults,
         decryptionResults,
         currentStatistics,
-
+        
         // Real-time data
         activityLog,
         securityAlerts,
@@ -438,29 +413,26 @@ const useQuantumWebSocket = () => {
         eavesdropperChartData,
         transmissionProgress,
         currentProgress,
-
+        
         // Transmission data
         transmissionLogs,
         aliceData,
         bobData,
         quantumHardwareFeedback,
-
+        
         // IBM Quantum functions
         initializeIBMQuantum,
         getQuantumBackendStatus,
-
+        
         // Quantum operations
         startEnhancedBB84,
         startLiveBB84,
-        encryptMessage,
-        decryptMessage,
-        encryptWithClassical,
-        decryptWithClassical,
         simulateAdvancedEavesdropper,
-
+        
         // Utility functions
         resetAllData,
-        sendCustomMessage
+        sendCustomMessage,
+        testConnection
     };
 };
 
