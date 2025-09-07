@@ -4,7 +4,6 @@ const useQuantumWebSocket = () => {
   // ===== CONNECTION STATE =====
   const [isConnected, setIsConnected] = useState(false);
   const [backendStatus, setBackendStatus] = useState(null);
-
   // ===== QUANTUM DATA STATE =====
   const [quantumState, setQuantumState] = useState(null);
   const [quantumUpdates, setQuantumUpdates] = useState([]);
