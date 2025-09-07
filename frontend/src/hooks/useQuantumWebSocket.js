@@ -42,7 +42,7 @@ const useQuantumWebSocket = () => {
         const connectSocket = () => {
             console.log('🔌 Attempting to connect to Quantum WebSocket...');
 
-            const newSocket = io('http://localhost:8000', 'https://quantum-backend-yh9m.onrender.com' {
+            const newSocket = io('http://localhost:8000', 'https://quantum-backend-yh9m.onrender.com' ,{
                 transports: ['websocket', 'polling'],
                 timeout: 10000,
                 reconnection: true,
