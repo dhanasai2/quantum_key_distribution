@@ -110,7 +110,7 @@ const useQuantumWebSocket = () => {
             newSocket.on('quantum_fallback_notice', (data) => {
                 console.warn('⚠ Quantum Fallback:', data.message);
                 setActivityLog(prev => [...prev, {
-                    action: ⚠ ${data.message},
+                    action:  ${data.message},
                     timestamp: new Date().toISOString(),
                     type: 'FALLBACK'
                 }]);
