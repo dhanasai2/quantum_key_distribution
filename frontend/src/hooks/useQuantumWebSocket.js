@@ -42,7 +42,7 @@ const useQuantumWebSocket = () => {
         const connectSocket = () => {
             console.log('🔌 Attempting to connect to Quantum WebSocket...');
 
-            const newSocket = io('http://localhost:8000', {
+            const newSocket = io('https://mnh8wn6h-8000.inc1.devtunnels.ms', {
                 transports: ['websocket', 'polling'],
                 timeout: 10000,
                 reconnection: true,
