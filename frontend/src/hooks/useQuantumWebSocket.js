@@ -42,7 +42,7 @@ const useQuantumWebSocket = () => {
         const connectSocket = () => {
             console.log('🔌 Attempting to connect to Quantum WebSocket...');
 
-            const newSocket = io('https://mnh8wn6h-8000.inc1.devtunnels.ms', {
+            const newSocket = io('http://localhost:8000', {
                 transports: ['websocket', 'polling'],
                 timeout: 10000,
                 reconnection: true,
@@ -108,9 +108,9 @@ const useQuantumWebSocket = () => {
             });
 
             newSocket.on('quantum_fallback_notice', (data) => {
-                console.warn('⚠ Quantum Fallback:', data.message);
+                console.warn('⚠️ Quantum Fallback:', data.message);
                 setActivityLog(prev => [...prev, {
-                    action: ⚠ ${data.message},
+                    action: `⚠️ ${data.message}`,
                     timestamp: new Date().toISOString(),
                     type: 'FALLBACK'
                 }]);
@@ -148,7 +148,7 @@ const useQuantumWebSocket = () => {
                 setAliceData({
                     bit: data.alice_bit?.toString() || '0',
                     basis: data.alice_basis_name?.charAt(0) || '+',
-                    state: |${data.alice_bit || 0}⟩${data.alice_basis === 0 ? '_z' : '_x'}
+                    state: `|${data.alice_bit || 0}⟩${data.alice_basis === 0 ? '_z' : '_x'}`
                 });
 
                 setBobData({
@@ -180,7 +180,7 @@ const useQuantumWebSocket = () => {
 
                 // Add completion to activity log
                 setActivityLog(prev => [...prev, {
-                    action: 🎉 BB84 Complete: ${result.bb84_details?.final_key_length}-bit key generated with ${(result.bb84_details?.error_rate * 100)?.toFixed(2)}% QBER,
+                    action: `🎉 BB84 Complete: ${result.bb84_details?.final_key_length}-bit key generated with ${(result.bb84_details?.error_rate * 100)?.toFixed(2)}% QBER`,
                     timestamp: new Date().toISOString(),
                     type: 'SUCCESS'
                 }]);
@@ -324,7 +324,7 @@ const useQuantumWebSocket = () => {
             return;
         }
 
-        console.log(🚀 Starting Enhanced BB84: ${keyLength}-bit key, Real Quantum: ${useRealQuantum});
+        console.log(`🚀 Starting Enhanced BB84: ${keyLength}-bit key, Real Quantum: ${useRealQuantum}`);
 
         // Reset all related state
         setQkdResults(null);
@@ -382,7 +382,7 @@ const useQuantumWebSocket = () => {
             return;
         }
 
-        console.log('🕵 Starting Advanced Eavesdropper Analysis');
+        console.log('🕵️ Starting Advanced Eavesdropper Analysis');
         setEavesdropperChartData([]); // Reset chart data
         socket.emit('simulate_advanced_eavesdropper');
     }, [socket]);
