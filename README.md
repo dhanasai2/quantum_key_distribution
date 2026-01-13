@@ -231,7 +231,7 @@ Quantum Cryptography Research Community
 📧 Email: saigundumogula5@gmail.com
 🏫 JNTU University – Information Technology
 💻 GitHub: dhanasai2
-🔗 LinkedIn: Your Profile
+
 
 ⚡ Built with cutting-edge quantum technology & modern web frameworks
 🔬 Advancing quantum cryptography education through interactive simulation
